@@ -1,0 +1,16 @@
+{
+  "name":"SiddhiApp",
+
+  "siddhiApps":
+  [
+    {
+      "name":"SiddhiApp_1",
+      "app" :"@Source(type = 'tcp',url='tcp://${SiddhiApp_1 source_ip}:{SiddhiApp_1 source_port}/SmartHomeData', context='SmartHomeData',@map(type='binary')) define stream SmartHomeData (id string, value float, property bool, plugId int, householdId int, houseId int, currentTime string);@sink(type='tcp', url='tcp://${SiddhiApp_1 sink_ip}:{SiddhiApp_1 sink_port}/UsageStream', sync='true', @map(type='binary')) define stream UsageStream (houseId int, maxVal float, minVal float, avgVal double); from SmartHomeData select houseId as houseId, max(value) as maxVal, min(value) as minVal, avg(value) as avgVal group by houseId insert into UsageStream;"
+    },
+    {
+      "name":"SiddhiApp_2",
+      "app" :"@Source(type = 'tcp', url='tcp://${SiddhiApp_2 source_ip}:{SiddhiApp_2 source_port}/UsageStream',context='UsageStream',@map(type='binary')) define stream UsageStream (houseId int, maxVal float, minVal float, avgVal double);@sink(type='tcp', url='tcp://${SiddhiApp_2 sink_ip}:{SiddhiApp_2 sink_port}/OutputStream', sync='true', @map(type='binary')) define stream OutputStream (houseId int, maxVal float, minVal float, avgVal double);from UsageStream select houseId, maxVal, minVal, avgVal insert into OutputStream;"
+    }
+  ]
+
+}
